@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Pannellum Hotspots Styling */
+.custom-panorama-hotspot {
+  z-index: 10 !important;
+}
+
+.custom-panorama-hotspot:hover {
+  z-index: 20 !important;
+}
+
+/* Hide Pannellum default info box styling if needed */
+.pnlm-tooltip span {
+  display: none !important;
+}
+
+/* Hide scrollbar for tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

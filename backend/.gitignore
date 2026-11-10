@@ -1,0 +1,54 @@
+# Dependencies
+/vendor/
+composer.phar
+
+# Environment files
+/.env
+/.env.backup
+/.env.*
+!/.env.example
+
+# Laravel storage files and compiled assets
+/storage/*.key
+/storage/pail/
+/storage/app/public/*
+!/storage/app/public/.gitignore
+/storage/framework/cache/data/*
+!/storage/framework/cache/data/.gitignore
+/storage/framework/cache/locks/*
+!/storage/framework/cache/locks/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
+/storage/framework/testing/*
+!/storage/framework/testing/.gitignore
+/storage/logs/*.log
+!/storage/logs/.gitignore
+
+# Public build assets and symlinks
+/public/storage
+/public/hot
+/public/build
+/public/fonts-manifest.dev.json
+
+# Caches and tests
+*.log
+.phpunit.result.cache
+/.phpunit.cache
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+
+# Node (if used in backend)
+/node_modules/
+
+# OS and Editors
+.DS_Store
+Thumbs.db
+/.idea/
+/.vscode/
+/.zed/
+/.cursor/
+/.codex/
+/.nova/

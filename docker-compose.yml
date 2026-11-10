@@ -1,0 +1,107 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-panorama}
+      MYSQL_USER: ${DB_USERNAME:-panorama_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_secret}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - panorama-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      APP_NAME: ${APP_NAME:-"360-Panorama"}
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_KEY: ${APP_KEY:-base64:Lri3pqOeGccDAXZJSdMnPAF+xAhkS+ZbEJKnvJOj2GM=}
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-panorama}
+      DB_USERNAME: ${DB_USERNAME:-panorama_user}
+      DB_PASSWORD: ${DB_PASSWORD:-secret}
+      FILESYSTEM_DISK: public
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: database
+      CACHE_STORE: database
+    volumes:
+      - ./backend:/var/www/backend
+      - backend_storage:/var/www/backend/storage/app/public
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - panorama-network
+    restart: unless-stopped
+
+  webserver:
+    image: nginx:1.27-alpine
+    ports:
+      - "${BACKEND_PORT:-8000}:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./backend:/var/www/backend:ro
+      - backend_storage:/var/www/backend/storage/app/public:ro
+    depends_on:
+      - backend
+    networks:
+      - panorama-network
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin:5.2.2-apache
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USERNAME:-panorama_user}
+      PMA_PASSWORD: ${DB_PASSWORD:-secret}
+      UPLOAD_LIMIT: 100M
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - panorama-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      VITE_BACKEND_URL: http://webserver:80
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - webserver
+    networks:
+      - panorama-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  backend_storage:
+
+networks:
+  panorama-network:
+    driver: bridge
+

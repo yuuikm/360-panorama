@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "/Users/markmorozov/.config/herd-lite/bin/php",
+            "args": [
+                "/Users/markmorozov/Documents/Front/360-panorama/panorama-backend/artisan",
+                "boost:mcp"
+            ]
+        }
+    }
+}
